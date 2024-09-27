@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element, react/no-unescaped-entities, @typescript-eslint/no-empty-interface */
+/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element, react/no-unescaped-entities, @typescript-eslint/no-empty-interface,  @typescript-eslint/no-explicit-any */
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { createPublicClient, http, createWalletClient, custom, parseAbi, formatEther, parseEther } from 'viem';
+import { createPublicClient, http, createWalletClient, custom, parseAbi, formatEther, parseEther, WalletClient } from 'viem';
 import { base } from 'viem/chains';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,12 +16,25 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Search, Upload, ChevronRight, ThumbsUp, Loader2, Menu } from 'lucide-react';
 import Link from 'next/link';
 import ConnectButton from '@/components/ConnectButton'
+import { CurrentAd } from '@/types'
+import { admanangerABI } from '@/config/abi';
 
-const contractABI = parseAbi([
-  'function getCurrentAd() view returns (string, string, uint256, address, address, bool, uint256)',
-  'function createAdvertisement(string _link, string _imageUrl, address _referrer) payable',
-  'function getNextAdPrice() view returns (uint256)'
-]);
+interface EthereumProvider {
+  isMetaMask?: boolean;
+  request: (...args: any[]) => Promise<any>;
+}
+
+interface EthereumWindow extends Window {
+  ethereum?: EthereumProvider;
+}
+
+function getEthereumProvider(): EthereumProvider | null {
+  const ethereumWindow = window as EthereumWindow;
+  return ethereumWindow.ethereum || null;
+}
+
+declare let window: any
+
 
 const contractAddress = '0x020243968704ccF8202Afd1F1134a90953385877';
 
@@ -31,16 +44,38 @@ const publicClient = createPublicClient({
 });
 
 export default function EnhancedAdManager() {
-  const [currentAd, setCurrentAd] = useState(null);
+  const [currentAd, setCurrentAd] = useState<CurrentAd | null>(null);
   const [nextAdPrice, setNextAdPrice] = useState('');
   const [newAdLink, setNewAdLink] = useState('');
   const [newAdImageUrl, setNewAdImageUrl] = useState('');
-  const [newAdReferrer, setNewAdReferrer] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isCreateAdOpen, setIsCreateAdOpen] = useState(false);
   const [adImage, setAdImage] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMetaMaskInstalled, setIsMetaMaskInstalled] = useState<boolean>(false);
+  const [walletClient, setWalletClient] = useState<WalletClient | null>(null);
+  const [newAdReferrer, setNewAdReferrer] = useState<`0x${string}`>('0x0000000000000000000000000000000000000000');
+
+
+  useEffect(() => {
+    checkMetaMaskInstallation();
+  }, []);
+
+  function checkMetaMaskInstallation() {
+    const provider = getEthereumProvider();
+    const isInstalled = !!provider?.isMetaMask;
+    setIsMetaMaskInstalled(isInstalled);
+
+    if (isInstalled) {
+      const client = createWalletClient({
+        chain: base,
+        transport: custom(provider)
+      });
+      setWalletClient(client);
+    }
+  }
+
 
   useEffect(() => {
     loadBlockchainData();
@@ -53,17 +88,25 @@ export default function EnhancedAdManager() {
       const [ad, price] = await Promise.all([
         publicClient.readContract({
           address: contractAddress,
-          abi: contractABI,
+          abi: admanangerABI,
           functionName: 'getCurrentAd',
         }),
         publicClient.readContract({
           address: contractAddress,
-          abi: contractABI,
+          abi: admanangerABI,
           functionName: 'getNextAdPrice',
         })
       ]);
 
-      setCurrentAd(ad);
+      setCurrentAd({
+        link: ad[0],
+        imageUrl: ad[1],
+        price: ad[2],
+        advertiser: ad[3],
+        referrer: ad[4],
+        isActive: ad[5],
+        engagements: ad[6]
+      });
       setNextAdPrice(formatEther(price));
     } catch (error) {
       console.error("An error occurred:", error);
@@ -73,9 +116,19 @@ export default function EnhancedAdManager() {
     }
   }
 
+
+  const handleNewAdReferrerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.startsWith('0x') && value.length === 42) {
+      setNewAdReferrer(value as `0x${string}`);
+    } else if (value === '') {
+      setNewAdReferrer('0x0000000000000000000000000000000000000000');
+    }
+  };
+
   async function createNewAd() {
-    if (typeof window.ethereum === 'undefined') {
-      setError('Please install MetaMask to create an ad.');
+    if (!isMetaMaskInstalled || !walletClient) {
+      setError('Please install web3 wallet to create an ad.');
       return;
     }
 
@@ -90,16 +143,16 @@ export default function EnhancedAdManager() {
       const [address] = await walletClient.requestAddresses();
       const price = await publicClient.readContract({
         address: contractAddress,
-        abi: contractABI,
+        abi: admanangerABI,
         functionName: 'getNextAdPrice',
       });
 
       const { request } = await publicClient.simulateContract({
         account: address,
         address: contractAddress,
-        abi: contractABI,
+        abi: admanangerABI,
         functionName: 'createAdvertisement',
-        args: [newAdLink, newAdImageUrl, newAdReferrer || '0x0000000000000000000000000000000000000000'],
+        args: [newAdLink, newAdImageUrl, newAdReferrer],
         value: price,
       });
 
@@ -353,7 +406,7 @@ export default function EnhancedAdManager() {
                 className="col-span-3 bg-[#1A1A1A] border-[#333] text-white"
                 placeholder="0x..."
                 value={newAdReferrer}
-                onChange={(e) => setNewAdReferrer(e.target.value)}
+                onChange={handleNewAdReferrerChange}
               />
             </div>
           </div>
