@@ -18,6 +18,11 @@ const publicClient = createPublicClient({
   transport: http(process.env.REACT_APP_RPC_URL),
 });
 
+interface NewAdData {
+  link: string;
+  imageUrl: string;
+  referrer: Address;
+}
 
 type FlexibleProvider = {
   request: (...args: any[]) => Promise<any>;
@@ -31,14 +36,10 @@ const EnhancedAdManager: React.FC = () => {
   const [isCreateAdOpen, setIsCreateAdOpen] = useState<boolean>(false);
   const [isMetaMaskInstalled, setIsMetaMaskInstalled] = useState<boolean>(false);
   const [walletClient, setWalletClient] = useState<WalletClient | null>(null);  
-  const [newAdData, setNewAdData] = useState<{
-    link: string;
-    imageUrl: string;
-    referrer: Address;
-  }>({
+  const [newAdData, setNewAdData] = useState<NewAdData>({
     link: '',
     imageUrl: '',
-    referrer: '0x0000000000000000000000000000000000000000'
+    referrer: '0x0000000000000000000000000000000000000000' as Address
   });
 
   useEffect(() => {
