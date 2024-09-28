@@ -35,3 +35,25 @@ export interface CommunityChallenge {
     reward: number;
     deadline: string;
 }
+
+
+export interface SpecialEvent {
+    title: string;
+    description: string;
+    endDate: string;
+}
+
+export interface MockData {
+    topAds: {
+        id: number;
+        title: string;
+        engagements: string;
+        image: string;
+    }[];
+    topEngagers: {
+        id: string;
+        address: string;
+        engagements: number;
+    }[];
+    specialEvent: SpecialEvent;
+}

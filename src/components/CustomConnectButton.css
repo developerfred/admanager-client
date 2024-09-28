@@ -1,0 +1,12 @@
+.custom-connect-button {
+  background: linear-gradient(to right, #D365E3, #9AEDEF);
+  color: black;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.custom-connect-button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(211, 101, 227, 0.2);
+}
