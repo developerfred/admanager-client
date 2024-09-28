@@ -5,27 +5,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Info } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Address } from 'viem';
+import { isAddress } from 'viem';
+import { z } from 'zod';
+
+const newAdDataSchema = z.object({
+    link: z.string().url('Invalid URL format'),
+    imageUrl: z.string().url('Invalid image URL format'),
+    referrer: z.union([z.literal(''), z.string().refine(value => isAddress(value), 'Invalid Ethereum address')]),
+});
+
+export type NewAdData = z.infer<typeof newAdDataSchema>;
 
 interface CreateAdDialogProps {
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
-    createNewAd: () => Promise<void>;
+    createNewAd: (data: NewAdData) => Promise<void>;
     isLoading: boolean;
     newAdData: NewAdData;
     setNewAdData: React.Dispatch<React.SetStateAction<NewAdData>>;
-}
-
-interface NewAdData {
-    link: string;
-    imageUrl: string;
-    referrer: Address;
-}
-
-interface AdFormErrors {
-    link: string;
-    imageUrl: string;
-    referrer: string | Address;
 }
 
 const CreateAdDialog: React.FC<CreateAdDialogProps> = ({
@@ -33,64 +30,52 @@ const CreateAdDialog: React.FC<CreateAdDialogProps> = ({
     setIsOpen,
     createNewAd,
     isLoading,
-    newAdData = { link: '', imageUrl: '', referrer: '0x0000000000000000000000000000000000000000' },
+    newAdData,
     setNewAdData,
 }) => {
-    const [errors, setErrors] = useState<AdFormErrors>({ link: '', imageUrl: '', referrer: '0x0000000000000000000000000000000000000000' });
-    const [isFormValid, setIsFormValid] = useState(false);
+    const [errors, setErrors] = useState<Partial<Record<keyof NewAdData, string>>>({});
 
     useEffect(() => {
-        validateForm();
+        validateForm(newAdData);
     }, [newAdData]);
 
-    const validateForm = () => {
-        const newErrors: AdFormErrors = { link: '', imageUrl: '', referrer: '0x0000000000000000000000000000000000000000' };
-        let isValid = true;
-
-        const validators = {
-            link: (value: string) => {
-                if (!value) return 'Ad link is required';
-                if (!/^https?:\/\/.+/.test(value)) return 'Invalid URL format';
-                return '';
-            },
-            imageUrl: (value: string) => {
-                if (!value) return 'Image URL is required';
-                if (!/^https?:\/\/.+\.(jpg|jpeg|png|gif)$/.test(value)) return 'Invalid image URL format';
-                return '';
-            },
-            referrer: (value: string) => {
-                if (value && !/^0x[a-fA-F0-9]{40}$/.test(value)) return 'Invalid Ethereum address';
-                return '';
-            },
-        };
-
-        (Object.keys(newAdData) as Array<keyof NewAdData>).forEach((key) => {
-            const error = validators[key](newAdData[key]);
-            if (error) {
-                newErrors[key] = error;
-                isValid = false;
-            }
-        });
-
-        setErrors(newErrors);
-        setIsFormValid(isValid);
+    const validateForm = (data: NewAdData) => {
+        const result = newAdDataSchema.safeParse(data);
+        if (result.success) {
+            setErrors({});
+        } else {
+            const newErrors: Partial<Record<keyof NewAdData, string>> = {};
+            result.error.issues.forEach((issue) => {
+                if (issue.path[0]) {
+                    newErrors[issue.path[0] as keyof NewAdData] = issue.message;
+                }
+            });
+            setErrors(newErrors);
+        }
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { id, value } = e.target;
-        setNewAdData((prev) => ({ ...prev, [id.replace('ad', '').toLowerCase()]: value }));
+        const { name, value } = e.target;
+        setNewAdData(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (isFormValid) {
-            await createNewAd();
+        if (Object.keys(errors).length === 0) {
+            try {
+                await createNewAd(newAdData);
+            } catch (error) {
+                console.error('Failed to create ad:', error);
+            }
         }
     };
 
-    const renderFormField = (id: keyof NewAdData, label: string, placeholder: string, tooltip?: string) => (
-        <div>
-            <Label htmlFor={`ad${id.charAt(0).toUpperCase() + id.slice(1)}`} className="text-[#9AEDEF] mb-2 block">
+    const renderFormField = (name: keyof NewAdData, label: string, placeholder: string, tooltip?: string) => (
+        <div key={name}>
+            <Label htmlFor={name} className="text-[#9AEDEF] mb-2 block">
                 {label}
                 {tooltip && (
                     <TooltipProvider>
@@ -106,14 +91,15 @@ const CreateAdDialog: React.FC<CreateAdDialogProps> = ({
                 )}
             </Label>
             <Input
-                id={`ad${id.charAt(0).toUpperCase() + id.slice(1)}`}
+                id={name}
+                name={name}
                 type="text"
-                className="bg-[#1A1A1A] border-[#333] text-white"
+                className={`bg-[#1A1A1A] border-[#333] text-white ${errors[name] ? 'border-red-500' : ''}`}
                 placeholder={placeholder}
-                value={newAdData[id] || ''}
+                value={newAdData[name]}
                 onChange={handleInputChange}
             />
-            {errors[id] && <p className="text-red-500 text-sm mt-1">{errors[id]}</p>}
+            {errors[name] && <p className="text-red-500 text-sm mt-1">{errors[name]}</p>}
         </div>
     );
 
@@ -121,7 +107,9 @@ const CreateAdDialog: React.FC<CreateAdDialogProps> = ({
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent className="bg-black/90 backdrop-blur-md text-white border border-[#333] max-w-3xl">
                 <DialogHeader>
-                    <DialogTitle className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#D365E3] to-[#9AEDEF]">Create Your Ad Masterpiece</DialogTitle>
+                    <DialogTitle className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#D365E3] to-[#9AEDEF]">
+                        Create Your Ad Masterpiece
+                    </DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -147,7 +135,7 @@ const CreateAdDialog: React.FC<CreateAdDialogProps> = ({
                     <DialogFooter>
                         <Button
                             type="submit"
-                            disabled={isLoading || !isFormValid}
+                            disabled={isLoading || Object.keys(errors).length > 0}
                             className="bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] text-black hover:opacity-90 py-2 px-4 rounded-full transition-all duration-300 transform hover:scale-105"
                         >
                             {isLoading ? (
@@ -164,6 +152,6 @@ const CreateAdDialog: React.FC<CreateAdDialogProps> = ({
             </DialogContent>
         </Dialog>
     );
-}
+};
 
 export default CreateAdDialog;

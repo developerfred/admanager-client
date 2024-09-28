@@ -18,6 +18,7 @@ const publicClient = createPublicClient({
   transport: http(process.env.REACT_APP_RPC_URL),
 });
 
+
 interface NewAdData {
   link: string;
   imageUrl: string;
@@ -57,7 +58,7 @@ const EnhancedAdManager: React.FC = () => {
 
       const client = createWalletClient({
         chain: base,
-        transport: custom(flexibleProvider)
+        transport: custom(flexibleProvider) 
       });
       setWalletClient(client);
     }
@@ -135,6 +136,7 @@ const EnhancedAdManager: React.FC = () => {
     }
   }
 
+  const handleCreateAdClose = () => setIsCreateAdOpen(false);
 
   return (
     <>
@@ -168,7 +170,7 @@ const EnhancedAdManager: React.FC = () => {
 
       <CreateAdDialog
         isOpen={isCreateAdOpen}
-        setIsOpen={setIsCreateAdOpen}
+        setIsOpen={handleCreateAdClose}
         createNewAd={createNewAd}
         isLoading={isLoading}
         newAdData={newAdData}
