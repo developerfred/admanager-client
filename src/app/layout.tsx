@@ -3,9 +3,12 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ReactGA from 'react-ga';
 
-import { headers } from "next/headers"; 
+import { headers } from "next/headers";
 import ContextProvider from '@/context'
+
+ReactGA.initialize('9748525137'); 
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,12 +42,12 @@ export default function RootLayout({
           <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
           <Header />
           <main className="relative max-w-7xl mx-auto mt-6 sm:mt-12 p-4 sm:p-6 z-10">
-            <ContextProvider cookies={cookies}>{children}</ContextProvider>      
+            <ContextProvider cookies={cookies}>{children}</ContextProvider>
           </main>
           <Footer />
         </div>
-        
-	</body>
+
+      </body>
     </html>
   );
 }
