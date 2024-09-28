@@ -25,6 +25,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@/components": [
+        "./src/components"
       ]
     },
     "strictNullChecks": true
@@ -34,8 +37,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "jest.config.js"  ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "types": ["jest", "node"]
 }
