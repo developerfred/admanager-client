@@ -3,7 +3,7 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { createPublicClient, http, createWalletClient, custom, Address, WalletClient } from 'viem';
-import { base } from 'viem/chains';
+import { scroll } from 'viem/chains';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Dashboard from '@/components/Dashboard';
@@ -14,7 +14,7 @@ import CreateAdDialog from '@/components/CreateAdDialog';
 import { admanangerABI, contractAddress, CurrentAd } from '@/lib/contract/config';
 
 const publicClient = createPublicClient({
-  chain: base,
+  chain: scroll,
   transport: http(process.env.REACT_APP_RPC_URL),
 });
 
@@ -57,7 +57,7 @@ const EnhancedAdManager: React.FC = () => {
       const flexibleProvider = provider as FlexibleProvider;
 
       const client = createWalletClient({
-        chain: base,
+        chain: scroll,
         transport: custom(flexibleProvider) 
       });
       setWalletClient(client);

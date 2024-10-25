@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -78,7 +79,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setIsCreateAdOpen, currentAd }) =
                             <h2 className="text-2xl sm:text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-[#D365E3] to-[#9AEDEF]">
                                 Premium Ad Spot
                             </h2>
-                            <p className="mb-4 text-white/80 text-sm sm:text-base">
+                            <p className="mb-4 text-white/80 text-sm sm:text-scroll">
                                 Boost your visibility! Showcase your product or service to our engaged audience.
                             </p>
                             <Button className="w-full sm:w-auto bg-white text-black hover:bg-[#D365E3] transition-colors duration-300" onClick={() => setIsCreateAdOpen(true)}>

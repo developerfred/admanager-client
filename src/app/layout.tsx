@@ -4,7 +4,6 @@ import "./globals.css";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
-import { headers } from "next/headers"; 
 import ContextProvider from '@/context'
 
 const geistSans = localFont({
@@ -29,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const cookies = headers().get('cookie')
+  
   return (
     <html lang="en">
       <body
@@ -39,7 +38,7 @@ export default function RootLayout({
           <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
           <Header />
           <main className="relative max-w-7xl mx-auto mt-6 sm:mt-12 p-4 sm:p-6 z-10">
-            <ContextProvider cookies={cookies}>{children}</ContextProvider>      
+            <ContextProvider cookies={null}>{children}</ContextProvider>      
           </main>
           <Footer />
         </div>
