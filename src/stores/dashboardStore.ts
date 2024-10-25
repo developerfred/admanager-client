@@ -4,10 +4,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { scroll } from "viem/chains";
-import {
-	createPublicClient,
-	http,
-} from "viem";
+import { createPublicClient, http } from "viem";
 import { admanangerABI, contractAddress } from "@/lib/contract/config";
 import { SpecialEvent, TopEngager } from "@/types";
 
@@ -15,7 +12,6 @@ const publicClient = createPublicClient({
 	chain: scroll,
 	transport: http(process.env.REACT_APP_RPC_URL),
 });
-
 
 interface Advertisement {
 	link: string;
@@ -28,7 +24,6 @@ interface Advertisement {
 	createdAt: bigint;
 	index?: number;
 }
-
 
 interface StoreState {
 	currentAd: Advertisement | null;
@@ -65,7 +60,6 @@ const serializeBigInts = (obj: any): any => {
 	return obj;
 };
 
-
 const deserializeBigInts = (obj: any): any => {
 	if (obj === null || obj === undefined) {
 		return obj;
@@ -78,7 +72,6 @@ const deserializeBigInts = (obj: any): any => {
 	if (typeof obj === "object") {
 		const deserialized: { [key: string]: any } = {};
 		for (const [key, value] of Object.entries(obj)) {
-			
 			const bigIntFields = ["price", "engagements", "createdAt"];
 			if (bigIntFields.includes(key) && typeof value === "string") {
 				deserialized[key] = BigInt(value);

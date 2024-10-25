@@ -13,7 +13,7 @@ function logDebug(...args: any[]) {
 	}
 }
 
-export function useAdManager() {	
+export function useAdManager() {
 	const {
 		data: totalAdsData,
 		isLoading: isTotalLoading,
@@ -25,20 +25,17 @@ export function useAdManager() {
 		onError: (err) => console.error("❌ Error loading total ads:", err),
 	});
 
-	
 	const {
 		data: latestAdData,
 		isLoading: isLatestLoading,
-		error: latestError,        
+		error: latestError,
 	} = useReadContract({
 		...admanangerConfig,
 		functionName: "getLatestAd",
 		onSuccess: (data) => logDebug("🆕 Latest ad loaded:", data),
 		onError: (err) => console.error("❌ Error loading latest ad:", err),
-        
 	});
 
-	
 	const {
 		data: allAdsData,
 		isLoading: isAdsLoading,
@@ -63,7 +60,6 @@ export function useAdManager() {
 		}
 	}, [totalAdsData, latestAdData, allAdsData]);
 
-	
 	const currentAd = latestAdData
 		? ({
 				link: latestAdData[0],

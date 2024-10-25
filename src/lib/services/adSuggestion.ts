@@ -35,14 +35,12 @@ export function generateNameSuggestions(
 		);
 	}
 
-	
 	if (title && h1) {
 		suggestions.push(
 			`${title.split(" ").slice(0, 2).join(" ")} - ${h1.split(" ").slice(0, 2).join(" ")}`,
 		);
 	}
 
-	
 	while (suggestions.length < 4) {
 		suggestions.push(
 			`Ad ${suggestions.length + 1}: ${title.split(" ").slice(0, 3).join(" ")}`,

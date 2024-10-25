@@ -1,11 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any,  @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import React from "react";
 import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 // Constants
 const BUTTON_STYLES = {
-	default: "bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] text-black hover:brightness-110 transition-all duration-200",
-	outline: "border-[#D365E3] text-[#D365E3] hover:bg-[#D365E3]/10 transition-all duration-200",
+	default:
+		"bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] text-black hover:brightness-110 transition-all duration-200",
+	outline:
+		"border-[#D365E3] text-[#D365E3] hover:bg-[#D365E3]/10 transition-all duration-200",
 } as const;
 
 const buttonVariants = cva(
@@ -34,15 +38,17 @@ const buttonVariants = cva(
 			variant: "default",
 			size: "md",
 		},
-	}
+	},
 );
 
 const WEB3_MODAL_STYLES = `
   :root {
-	--wcm-accent-fill-color: #000000 !important;
-    --w3m-accent: transparent !important;
-    --w3m-default:  transparent !important;
-    --wui-color-accent-base-100:  transparent !important;
+	--wcm-accent-fill-color: linear-gradient(to right, #D365E3, #9AEDEF) !important;
+    --w3m-accent: linear-gradient(to right, #D365E3, #9AEDEF) !important;
+    --w3m-default:  linear-gradient(to right, #D365E3, #9AEDEF) !important;
+    --wui-color-accent-base-100: linear-gradient(to right, #D365E3, #9AEDEF) !important;
+	 
+
   }
 
   w3m-button {
@@ -102,18 +108,18 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({
 	className,
 }) => {
 	React.useEffect(() => {
-		const existingStyle = document.getElementById('web3modal-styles');
+		const existingStyle = document.getElementById("web3modal-styles");
 		if (existingStyle) {
 			existingStyle.remove();
 		}
 
 		const style = document.createElement("style");
-		style.id = 'web3modal-styles';
+		style.id = "web3modal-styles";
 		style.textContent = WEB3_MODAL_STYLES;
 		document.head.appendChild(style);
 
 		return () => {
-			const styleToRemove = document.getElementById('web3modal-styles');
+			const styleToRemove = document.getElementById("web3modal-styles");
 			if (styleToRemove) {
 				styleToRemove.remove();
 			}
@@ -130,7 +136,7 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({
 					buttonVariants({
 						variant,
 						size,
-					})
+					}),
 				)}
 			/>
 		</div>

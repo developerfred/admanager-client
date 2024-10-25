@@ -72,6 +72,107 @@ export const admanangerConfig = {
 			outputs: [{ name: "", type: "uint256" }],
 			stateMutability: "view",
 		},
+		{
+			inputs: [
+				{
+					internalType: "uint256",
+					name: "_adIndex",
+					type: "uint256",
+				},
+			],
+			name: "recordEngagement",
+			outputs: [],
+			stateMutability: "nonpayable",
+			type: "function",
+		},
+
+		{
+			inputs: [
+				{
+					internalType: "address",
+					name: "_user",
+					type: "address",
+				},
+			],
+			name: "getUserStats",
+			outputs: [
+				{
+					internalType: "uint256",
+					name: "totalEngagements",
+					type: "uint256",
+				},
+				{
+					internalType: "uint256",
+					name: "engagedAdsCount",
+					type: "uint256",
+				},
+				{
+					internalType: "uint256",
+					name: "level",
+					type: "uint256",
+				},
+				{
+					internalType: "bool",
+					name: "isActive",
+					type: "bool",
+				},
+			],
+			stateMutability: "view",
+			type: "function",
+		},
+		{
+			inputs: [
+				{
+					internalType: "address",
+					name: "_user",
+					type: "address",
+				},
+			],
+			name: "getUserDetails",
+			outputs: [
+				{
+					internalType: "uint256",
+					name: "reputation",
+					type: "uint256",
+				},
+				{
+					internalType: "uint256",
+					name: "timesChief",
+					type: "uint256",
+				},
+				{
+					internalType: "address",
+					name: "referredBy",
+					type: "address",
+				},
+				{
+					internalType: "bool",
+					name: "isAdvertiser",
+					type: "bool",
+				},
+			],
+			stateMutability: "view",
+			type: "function",
+		},
+		{
+			inputs: [
+				{
+					internalType: "address",
+					name: "_user",
+					type: "address",
+				},
+			],
+			name: "getChiefTimes",
+			outputs: [
+				{
+					internalType: "uint256",
+					name: "",
+					type: "uint256",
+				},
+			],
+			stateMutability: "view",
+			type: "function",
+		},
 	] as const,
 } as const;
 
