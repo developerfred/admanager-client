@@ -76,3 +76,33 @@ body {
 		@apply bg-background text-foreground;
 	}
 }
+
+
+:root {
+  color-scheme: dark;
+}
+
+/* Web3Modal custom styles */
+w3m-modal {
+  --w3m-background-color: #000000 !important;
+  --w3m-accent-color: transparent !important;
+  --w3m-z-index: 999;
+}
+
+/* Custom button styles */
+w3m-button {
+  background: linear-gradient(to right, #D365E3, #9AEDEF) !important;
+  border-radius: 9999px !important;
+  transition: all 0.2s ease !important;
+}
+
+w3m-button:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1);
+}
+
+/* Modal overlay */
+.w3m-overlay {
+  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.7) !important;
+}

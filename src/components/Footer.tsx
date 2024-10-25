@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 const Footer: React.FC = () => (
@@ -25,7 +26,7 @@ const Footer: React.FC = () => (
 						Instagram
 					</li>
 					<li className="hover:text-[#D365E3] transition-colors duration-200">
-						Twitter
+						<Link href="https://twitter.com/codingsh">Twitter</Link>
 					</li>
 					<li className="hover:text-[#D365E3] transition-colors duration-200">
 						TikTok

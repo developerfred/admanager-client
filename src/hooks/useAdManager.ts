@@ -29,12 +29,13 @@ export function useAdManager() {
 	const {
 		data: latestAdData,
 		isLoading: isLatestLoading,
-		error: latestError,
+		error: latestError,        
 	} = useReadContract({
 		...admanangerConfig,
 		functionName: "getLatestAd",
 		onSuccess: (data) => logDebug("🆕 Latest ad loaded:", data),
 		onError: (err) => console.error("❌ Error loading latest ad:", err),
+        
 	});
 
 	
