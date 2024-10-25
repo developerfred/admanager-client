@@ -3,7 +3,7 @@
 
 import { parseAbi, Address } from 'viem';
 
-export const contractAddress = '0x020243968704ccF8202Afd1F1134a90953385877';
+export const contractAddress = '0x9D205B3A1B2724d545Ca7e3717ea629b9844401a';
 
 
 export const admanangerABI = parseAbi([

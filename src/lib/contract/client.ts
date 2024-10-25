@@ -1,7 +1,7 @@
 import { createPublicClient, http } from 'viem';
-import { base } from 'viem/chains';
+import { scroll } from 'viem/chains';
 
 export const publicClient = createPublicClient({
-    chain: base,
+    chain: scroll,
     transport: http(),
 });
