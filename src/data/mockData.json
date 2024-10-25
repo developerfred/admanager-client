@@ -1,32 +1,32 @@
 {
-  "topAds": [
-    {
-      "id": 1,
-      "title": "Girl Power Merch",
-      "engagements": "15000",
-      "image": "https://via.placeholder.com/100"
-    },
-    {
-      "id": 2,
-      "title": "Retro Phone Cases",
-      "engagements": "12000",
-      "image": "https://via.placeholder.com/100"
-    },
-    {
-      "id": 3,
-      "title": "Neon Vibes Only",
-      "engagements": "10000",
-      "image": "https://via.placeholder.com/100"
-    }
-  ],
-  "topEngagers": [
-    { "id": "1", "address": "0x1234...5678", "engagements": 5000 },
-    { "id": "2", "address": "0x5678...9012", "engagements": 4500 },
-    { "id": "3", "address": "0x9012...3456", "engagements": 4000 }
-  ],
-  "specialEvent": {
-    "title": "Double Rewards Weekend!",
-    "description": "Engage with ads this weekend to earn double the usual rewards.",
-    "endDate": "2023-09-30"
-  }
+	"topAds": [
+		{
+			"id": 1,
+			"title": "Girl Power Merch",
+			"engagements": "15000",
+			"image": "https://via.placeholder.com/100"
+		},
+		{
+			"id": 2,
+			"title": "Retro Phone Cases",
+			"engagements": "12000",
+			"image": "https://via.placeholder.com/100"
+		},
+		{
+			"id": 3,
+			"title": "Neon Vibes Only",
+			"engagements": "10000",
+			"image": "https://via.placeholder.com/100"
+		}
+	],
+	"topEngagers": [
+		{ "id": "1", "address": "0x1234...5678", "engagements": 5000 },
+		{ "id": "2", "address": "0x5678...9012", "engagements": 4500 },
+		{ "id": "3", "address": "0x9012...3456", "engagements": 4000 }
+	],
+	"specialEvent": {
+		"title": "Double Rewards Weekend!",
+		"description": "Engage with ads this weekend to earn double the usual rewards.",
+		"endDate": "2023-09-30"
+	}
 }
