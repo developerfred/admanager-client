@@ -1,8 +1,6 @@
-// lib/contract/config.ts
+
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { parseAbi, Address } from 'viem';
 
 export enum SupportedNetworks {
     CELO = 'celo',
@@ -100,25 +98,3 @@ export const getNetworkRpcUrl = (chainId: number): string => {
     return config?.rpcUrl || 'https://mainnet.base.org';
 };
 
-
-
-export interface CurrentAd {
-    link: string;
-    imageUrl: string;
-    price: bigint;
-    advertiser: Address;
-    referrer: Address;
-    isActive: boolean;
-    engagements: bigint;
-}
-
-export interface Advertisement {
-    link: string;
-    imageUrl: string;
-    price: bigint;
-    advertiser: Address;
-    referrer: Address;
-    isActive: boolean;
-    engagements: bigint;
-    createdAt: bigint;
-}

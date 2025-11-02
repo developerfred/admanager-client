@@ -1,4 +1,5 @@
-import { useAppKit, useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
 import { createPublicClient, http, type PublicClient } from 'viem';
 import { useState, useEffect } from 'react';
 import { 
