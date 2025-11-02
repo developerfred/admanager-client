@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-reactStrictMode: true,
+  reactStrictMode: true,
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -10,24 +10,23 @@ reactStrictMode: true,
         tls: false,
       };
     }
-    config.externals.push('pino-pretty', 'lokijs', 'encoding');
+    config.externals.push("pino-pretty", "lokijs", "encoding");
 
     return config;
   },
   images: {
-    domains: ['via.placeholder.com', 'i.imgur.com'], 
+    domains: ["via.placeholder.com", "i.imgur.com"],
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '**',
+        protocol: "https",
+        hostname: "**",
       },
       {
-        protocol: 'http',
-        hostname: '**',
+        protocol: "http",
+        hostname: "**",
       },
     ],
   },
-
 };
 
 export default nextConfig;
