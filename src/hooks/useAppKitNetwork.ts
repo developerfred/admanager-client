@@ -2,20 +2,20 @@ import { useAccount, usePublicClient, useSwitchChain, useWalletClient } from 'wa
 import { getContractAddress } from '@/config/contract';
 
 export const useAppKitNetwork = () => {
-  const { address, isConnected, chainId } = useAccount();
-  const publicClient = usePublicClient();
-  const { data: walletClient } = useWalletClient();
-  const { switchChain } = useSwitchChain();
+    const { address, isConnected, chainId } = useAccount();
+    const publicClient = usePublicClient();
+    const { data: walletClient } = useWalletClient();
+    const { switchChain } = useSwitchChain();
 
-  const contractAddress = getContractAddress(chainId);
+    const contractAddress = getContractAddress(chainId);
 
-  return {
-    address,
-    isConnected,
-    chainId,
-    publicClient,
-    walletClient,
-    contractAddress,
-    switchChain,
-  };
+    return {
+        address,
+        isConnected,
+        chainId,
+        publicClient,
+        walletClient,
+        contractAddress,
+        switchChain,
+    };
 };

@@ -1,6 +1,6 @@
 import type { Address } from 'viem';
 
-// Contract addresses per chain
+
 export const CONTRACT_ADDRESSES: Record<number, Address> = {
   42220: '0xdc461a5b7dd3527612867b08a2ccc87416b44879', // Celo
   44787: '0xdc461a5b7dd3527612867b08a2ccc87416b44879', // Celo Alfajores
@@ -15,7 +15,7 @@ export const getContractAddress = (chainId?: number): Address | undefined => {
   return CONTRACT_ADDRESSES[chainId];
 };
 
-// Types
+
 export interface CurrentAd {
   link: string;
   imageUrl: string;

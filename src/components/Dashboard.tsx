@@ -1,136 +1,241 @@
-import React, { useEffect } from 'react';
+import type React from 'react';
+import { useReadContract } from 'wagmi';
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ThumbsUp, Trophy, Clock, Sparkles, Star } from 'lucide-react';
-import { useDashboardStore } from '@/stores/dashboardStore';
-import { formatAddress } from '@/utils/formatters';
-
-import { CurrentAd, TopAd, TopEngager, MockData } from '@/types';
-import mockData from '@/data/mockData.json';
-
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+    ChevronRight,
+    Trophy,
+    Clock,
+    Sparkles,
+    Star,
+    TrendingUp,
+    Zap,
+} from 'lucide-react';
+import { useAppKitNetwork } from '@/hooks/useAppKitNetwork';
+import { globalABI } from '@/config/abi';
+import { formatEther } from 'viem';
+import type { CurrentAd } from '@/config/contract';
+import TopPerformingAds from '@/components/TopPerformingAds';
 
 interface DashboardProps {
-    setIsCreateAdOpen: (isOpen: boolean) => void; 
+    setIsCreateAdOpen: (isOpen: boolean) => void;
     currentAd: CurrentAd | null;
+    isConnected: boolean;
+    onConnectWallet: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ setIsCreateAdOpen, currentAd }) => {
-    const { topAds, topEngagers, specialEvent, setTopAds, setTopEngagers, setSpecialEvent } = useDashboardStore();
+const formatAddress = (address: string): string => {
+    if (!address) return '';
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+};
 
-    useEffect(() => {
-        const fetchDashboardData = async () => {
-            const data = mockData as MockData;
+const Dashboard: React.FC<DashboardProps> = ({
+    setIsCreateAdOpen,
+    currentAd,
+    isConnected,
+}) => {
+    const { contractAddress } = useAppKitNetwork();
 
-            const transformedAds: TopAd[] = data.topAds.map(ad => ({
-                ...ad,
-                engagements: Number(ad.engagements)
-            }));
-            setTopAds(transformedAds);
+    // Read current chief
+    const { data: chiefData } = useReadContract({
+        address: contractAddress,
+        abi: globalABI,
+        functionName: 'getCurrentChief',
+        query: {
+            enabled: !!contractAddress,
+        },
+    });
 
-            const transformedEngagers: TopEngager[] = data.topEngagers.map(engager => ({
-                ...engager,
-                id: Number(engager.id)
-            }));
-            setTopEngagers(transformedEngagers);
+    // Read current event
+    const { data: eventData } = useReadContract({
+        address: contractAddress,
+        abi: globalABI,
+        functionName: 'getCurrentEventInfo',
+        query: {
+            enabled: !!contractAddress,
+        },
+    });
 
-            setSpecialEvent(data.specialEvent);
-        };
+    const chief = chiefData
+        ? {
+            address: chiefData[0],
+            tokenBalance: chiefData[1],
+            referralLevel: chiefData[2],
+        }
+        : null;
 
-        fetchDashboardData();
-    }, [setTopAds, setTopEngagers, setSpecialEvent]);
+    const event = eventData
+        ? {
+            name: eventData[0],
+            startTime: Number(eventData[1]),
+            endTime: Number(eventData[2]),
+            rewardMultiplier: Number(eventData[3]),
+        }
+        : null;
 
-    const renderAdCard = (ad: TopAd | CurrentAd, isCurrentAd: boolean = false) => {
-        const engagements = typeof ad.engagements === 'bigint' ? ad.engagements.toString() : ad.engagements.toString();
-        const image = 'image' in ad ? ad.image : ad.imageUrl;
-        const title = 'title' in ad ? ad.title : "Featured Ad";
+    const isEventActive = event && Date.now() / 1000 < event.endTime;
 
+    if (!isConnected) {
         return (
-            <Card key={('id' in ad ? ad.id : 'current').toString()} className="bg-black/50 backdrop-blur-md border-0 hover:shadow-lg hover:shadow-[#D365E3]/20 transition-all duration-300 transform hover:-translate-y-1">
-                <CardContent className="p-4">
-                    <div className="relative">
-                        <img src={image} alt={title} className="w-full h-32 object-cover mb-2 rounded" />
-                        {isCurrentAd && (
-                            <div className="absolute top-2 right-2 bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-bold flex items-center">
-                                <Star className="h-3 w-3 mr-1" /> Current
-                            </div>
-                        )}
-                    </div>
-                    <h3 className="font-bold text-[#9AEDEF] mb-1">{title}</h3>
-                    <p className="text-sm text-[#D365E3] mb-2">{engagements} engagements</p>
-                    <Button
-                        className="w-full bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] text-black hover:opacity-90 transition-all duration-300"
-                    >
-                        <ThumbsUp className="h-4 w-4 mr-2" />
-                        Engage
-                    </Button>
-                </CardContent>
-            </Card>
+            <Alert className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border-purple-500/50">
+                <AlertDescription className="text-center text-lg">
+                    Connect your wallet to view the dashboard
+                </AlertDescription>
+            </Alert>
         );
-    };
+    }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-            <div className="lg:col-span-2 space-y-6">
-                <Card className="overflow-hidden bg-black/50 backdrop-blur-md border-0 shadow-lg shadow-[#D365E3]/20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-8">
+                {/* Featured Ad Section */}
+                <Card className="overflow-hidden bg-gradient-to-br from-purple-900/50 via-blue-900/50 to-teal-900/50 backdrop-blur-md border-0 shadow-2xl">
                     <CardContent className="p-0">
-                        <img src={currentAd ? currentAd.imageUrl : "https://i.imgur.com/Ts32Art.jpeg"} alt="Featured Ad" className="w-full h-48 sm:h-64 object-cover" />
-                        <div className="p-4 sm:p-6 bg-gradient-to-br from-[#D365E3]/20 to-[#9AEDEF]/20 backdrop-blur-sm">
-                            <h2 className="text-2xl sm:text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-[#D365E3] to-[#9AEDEF]">
+                        <div className="relative">
+                            <img
+                                src={currentAd?.imageUrl || 'https://i.imgur.com/Ts32Art.jpeg'}
+                                alt="Featured Ad"
+                                className="w-full h-64 sm:h-80 object-cover"
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = 'https://i.imgur.com/Ts32Art.jpeg';
+                                }}
+                            />
+                            {currentAd && (
+                                <div className="absolute top-4 right-4 bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] text-black px-4 py-2 rounded-full text-sm font-bold flex items-center shadow-lg">
+                                    <Star className="h-4 w-4 mr-2" /> Current Featured Ad
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-6 sm:p-8 bg-gradient-to-br from-[#D365E3]/20 to-[#9AEDEF]/20 backdrop-blur-sm">
+                            <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-[#D365E3] to-[#9AEDEF]">
                                 Premium Ad Spot
                             </h2>
-                            <p className="mb-4 text-white/80 text-sm sm:text-base">
-                                Boost your visibility! Showcase your product or service to our engaged audience.
+                            <p className="mb-6 text-white/90 text-base sm:text-lg leading-relaxed">
+                                Boost your visibility! Showcase your product or service to our engaged audience and
+                                watch your brand grow.
                             </p>
-                            <Button className="w-full sm:w-auto bg-white text-black hover:bg-[#D365E3] transition-colors duration-300" onClick={() => setIsCreateAdOpen(true)}>
-                                Create Your Ad
-                                <ChevronRight className="ml-2 h-4 w-4" />
-                            </Button>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <Button
+                                    className="flex-1 bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] text-black hover:opacity-90 font-semibold py-6 text-lg shadow-lg"
+                                    onClick={() => setIsCreateAdOpen(true)}
+                                >
+                                    Create Your Ad
+                                    <ChevronRight className="ml-2 h-5 w-5" />
+                                </Button>
+                                {currentAd && (
+                                    <div className="flex items-center gap-2 px-4 py-3 bg-black/30 rounded-lg">
+                                        <TrendingUp className="h-5 w-5 text-[#9AEDEF]" />
+                                        <span className="text-white font-semibold">
+                                            {currentAd.engagements.toString()} engagements
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                <div>
-                    <h2 className="text-xl sm:text-2xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] flex items-center">
-                        <Trophy className="mr-2" /> Top Performing Ads
-                    </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {currentAd && renderAdCard(currentAd, true)}
-                        {topAds.slice(0, currentAd ? 2 : 3).map(ad => renderAdCard(ad))}
-                    </div>
-                </div>
+                {/* Top Performing Ads */}
+                <TopPerformingAds />
             </div>
 
-            <div className="space-y-6">
-                <Card className="bg-black/50 backdrop-blur-md border-0 shadow-lg shadow-[#9AEDEF]/20">
-                    <CardHeader>
-                        <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] flex items-center">
-                            <Sparkles className="mr-2" /> Top Engaging Wallets
-                        </h2>
-                    </CardHeader>
-                    <CardContent>
-                        {topEngagers.map((engager, index) => (
-                            <div key={engager.id} className={`flex justify-between items-center ${index !== 0 ? 'border-t border-[#333]' : ''} py-2`}>
-                                <span className="text-[#D365E3]">{formatAddress(engager.address)}</span>
-                                <span className="font-bold text-[#9AEDEF]">{engager.engagements.toLocaleString()} engagements</span>
+            {/* Sidebar */}
+            <div className="space-y-8">
+                {/* Chief of Advertising */}
+                {chief && chief.address !== '0x0000000000000000000000000000000000000000' && (
+                    <Card className="bg-gradient-to-br from-yellow-900/50 to-orange-900/50 backdrop-blur-md border-0 shadow-xl">
+                        <CardHeader>
+                            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-orange-400 flex items-center">
+                                <Trophy className="mr-2 h-6 w-6 text-yellow-400" /> Chief of Advertising
+                            </h2>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="p-4 bg-black/30 rounded-lg">
+                                <p className="text-sm text-gray-400 mb-1">Address</p>
+                                <p className="text-lg font-bold text-yellow-400">{formatAddress(chief.address)}</p>
                             </div>
-                        ))}
-                    </CardContent>
-                </Card>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 bg-black/30 rounded-lg">
+                                    <p className="text-sm text-gray-400 mb-1">Tokens</p>
+                                    <p className="text-lg font-bold text-[#9AEDEF]">
+                                        {parseFloat(formatEther(chief.tokenBalance)).toFixed(2)}
+                                    </p>
+                                </div>
+                                <div className="p-4 bg-black/30 rounded-lg">
+                                    <p className="text-sm text-gray-400 mb-1">Referrals</p>
+                                    <p className="text-lg font-bold text-[#D365E3]">
+                                        {chief.referralLevel.toString()}
+                                    </p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
-                <Card className="bg-black/50 backdrop-blur-md border-0 shadow-lg shadow-[#D365E3]/20">
+                {/* Special Event */}
+                {isEventActive && event && (
+                    <Card className="bg-gradient-to-br from-purple-900/50 to-pink-900/50 backdrop-blur-md border-0 shadow-xl">
+                        <CardHeader>
+                            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] flex items-center">
+                                <Zap className="mr-2 h-6 w-6 text-[#D365E3]" /> Special Event
+                            </h2>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div>
+                                <p className="text-[#D365E3] text-xl font-bold mb-2">{event.name}</p>
+                                <div className="flex items-center gap-2 text-sm text-gray-300">
+                                    <Clock className="h-4 w-4" />
+                                    <span>
+                                        Ends:{' '}
+                                        {new Date(event.endTime * 1000).toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                        })}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="p-4 bg-black/30 rounded-lg">
+                                <p className="text-sm text-gray-400 mb-1">Reward Multiplier</p>
+                                <p className="text-3xl font-bold text-[#9AEDEF]">{event.rewardMultiplier}%</p>
+                            </div>
+                        </CardContent>
+                        <CardFooter>
+                            <Button className="w-full bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] text-black hover:opacity-90 font-semibold py-6">
+                                <Sparkles className="mr-2 h-5 w-5" />
+                                Participate Now
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                )}
+
+                {/* Quick Stats */}
+                <Card className="bg-black/50 backdrop-blur-md border-0 shadow-xl">
                     <CardHeader>
-                        <h2 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] flex items-center">
-                            <Clock className="mr-2" /> Special Event
+                        <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] flex items-center">
+                            <TrendingUp className="mr-2" /> Platform Stats
                         </h2>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-[#D365E3] mb-2 font-semibold">{specialEvent.title}</p>
-                        <p className="text-sm text-white/80 mb-2">{specialEvent.description}</p>
-                        <p className="text-xs text-[#9AEDEF]">Ends on: {new Date(specialEvent.endDate).toLocaleDateString()}</p>
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-[#D365E3]/10 to-[#9AEDEF]/10 rounded-lg">
+                                <span className="text-gray-300">Active Ads</span>
+                                <span className="font-bold text-[#9AEDEF] text-lg">
+                                    {currentAd ? '1+' : '0'}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-[#D365E3]/10 to-[#9AEDEF]/10 rounded-lg">
+                                <span className="text-gray-300">Total Engagements</span>
+                                <span className="font-bold text-[#D365E3] text-lg">
+                                    {currentAd ? currentAd.engagements.toString() : '0'}
+                                </span>
+                            </div>
+                        </div>
                     </CardContent>
-                    <CardFooter>
-                        <Button className="w-full bg-gradient-to-r from-[#D365E3] to-[#9AEDEF] text-black hover:opacity-90">Participate Now</Button>
-                    </CardFooter>
                 </Card>
             </div>
         </div>
