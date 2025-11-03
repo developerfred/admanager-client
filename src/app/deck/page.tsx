@@ -858,7 +858,7 @@ const InvestorDeck: React.FC = () => {
                                     </div>
                                     <div className="flex gap-4 mt-8">
                                         <a
-                                            href="https://github.com/codingsh"
+                                            href="https://github.com/developerfred"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-white hover:text-[#9AEDEF] transition-colors"
@@ -873,16 +873,7 @@ const InvestorDeck: React.FC = () => {
                                             className="text-white hover:text-[#9AEDEF] transition-colors"
                                         >
                                             Twitter
-                                        </a>
-                                        <span className="text-gray-600">•</span>
-                                        <a
-                                            href="https://linkedin.com/in/codingsh"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-white hover:text-[#9AEDEF] transition-colors"
-                                        >
-                                            LinkedIn
-                                        </a>
+                                        </a>                                        
                                     </div>
                                 </div>
                             </CardContent>
